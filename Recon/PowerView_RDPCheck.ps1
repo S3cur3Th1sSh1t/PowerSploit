@@ -13331,8 +13331,10 @@ function Find-LocalRDPAccess {
             if($Up) {
                 # check if the current user has RDP access to this server
                 $Access = Invoke-CheckRDPAccess -ComputerName $ComputerName -GroupName RemoteDesktopBenutzer -Recurse
-                if ($Access) {
+                if ($Access -eq $True) {
+                echo "RDP-Rights for $env:userdnsdomain/$env:UserName found:"
                     $ComputerName
+                    $Access = $false
                 }
             }
         }
@@ -13566,7 +13568,7 @@ function Invoke-CheckRDPAccess {
                             $_ | Add-Member Noteproperty 'IsDomain' $True
                         }
                     }
-                    $LocalUsers
+                    #$LocalUsers
                 }
                 else {
                     Write-Verbose "Error: $(([ComponentModel.Win32Exception] $Result).Message)"
@@ -13724,8 +13726,7 @@ function Invoke-CheckRDPAccess {
                                       $Member | Add-Member Noteproperty 'PwdExpired' ''
                                       $Member | Add-Member Noteproperty 'UserFlags' $_.userAccountControl
                                       $Member.PSObject.TypeNames.Add('PowerView.LocalUser')
-                                      if ("$env:userdnsdomain/$env:UserName" -eq "$MemberDomain/$MemberName"){
-                                      echo "RDP-Rights found:"
+                                      if ("$env:userdnsdomain/$env:UserName" -like "$MemberDomain/$MemberName"){
                                       $True
                                       #$Member
                                       }
